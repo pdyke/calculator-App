@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calculatorapp
+spec:
+  selector:
+    matchLabels:
+      app: calculatorapp
+  template:
+    metadata:
+      labels:
+        app: calculatorapp
+    spec:
+      containers:
+      - name: calculatorapp
+        image: epauldike/calapp:{{ .Values.image.tag }}
+        ports:
+        - containerPort: 3000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: calculatorapp
+spec:
+  type: LoadBalancer
+  selector:
+    app: calculatorapp
+  ports:
+  - protocol: TCP
+    port: 3000
+    targetPort: 3000
+
