@@ -53,6 +53,17 @@ jobs:
          uses: azure/setup-helm@v4.2.0
          id: "install-helm"
 
+       - name: Create Helm chart
+         run: |
+          helm create mychart
+          sed -i 's|repository: ""|repository: "epauldike/calapp":${{ env.APP_VERSION }}|' mychart/values.yaml
+
        - name: "deploy helm"
          run: |
-          helm upgrade --install deployment.yaml /home/pdyke/new/deployment.yaml --set image.tag=${{ env.APP_VERSION }}
+          helm upgrade --install deployment mychart --set image.tag=${{ env.APP_VERSION }}
+
+       - name: Get Minikube IP
+         run: |
+          minikube ip
+
+        
