@@ -63,14 +63,28 @@ jobs:
       #     helm repo update
       #     helm install prometheus prometheus-community/prometheus
 
-      #  - name: Create Helm chart
-      #    run: |
-      #     helm create mychart
+       - name: Create Helm chart
+         run: |
+          helm create mychart
+
+       - name: "Delete Templates"
+         run: | 
+          rm -rf mychart/templates/tests/*
+          rm -rf mychart/templates/NOTES.txt
+          rm -rf mychart/templates/deployment.yaml
+          rm -rf mychart/templates/service.yaml
+          rm -rf mychart/templates/ingress.yaml
+          rm -rf mychart/templates/hpa.yaml
+          rm -rf mychart/templates/serviceaccount.yaml
+          rm -rf mychart/templates/_helpers.tpl
+
+       - name: "Add to Templates"
+         run: |
+          cp /home/pdyke/new/deployment.yaml mychart/templates
 
        - name: "deploy helm"
          run: |
-          helm upgrade --install calculatorapp mychart --set image.tag=${{ env.APP_VERSION }}
-          # helm upgrade --install calculatorapp ./helm-chart --set image.repository=$/$ECR_REPOSITORY,image.tag=$IMAGE_TAG
+          helm upgrade --install mychart mychart --set image.tag=${{ env.APP_VERSION }}
 
       #  - name: "Install Grafana"
       #    run: |
