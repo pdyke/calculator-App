@@ -14,6 +14,13 @@ jobs:
        - name: check out the repository
          uses: actions/checkout@v4
 
+       - name: Configure AWS Credentials
+         uses: aws-actions/configure-aws-credentials@v4
+         with:
+           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+           aws-region: eu-north-1
+
        - name: "Create version number"
          run: |
           echo "APP_VERSION=${RANDOM}" >> $GITHUB_ENV
@@ -25,20 +32,8 @@ jobs:
        - name: "Logs into docker"
          uses: docker/login-action@v3
          with:
-             username: ${{ secrets.DOCKERHUB_USERNAME }}
-             password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-       - name: Set up Minikube
-         uses: medyagh/setup-minikube@latest
-         id: minikube
-         with:
-           minikube version: 'latest'
-           kubernetes version: 'v1.24.0'
-           driver: 'docker'
-
-       - name: Start Minikube
-         run: |
-            minikube start --driver=docker
+            username: ${{ secrets.DOCKERHUB_USERNAME }}
+            password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
        - name: "Build our Code"
          env:
@@ -49,21 +44,38 @@ jobs:
              docker build -t $USERNAME/$IMAGE_NAME:$VERSION .
              docker push $USERNAME/$IMAGE_NAME:$VERSION
 
+       - name: Update kube-config
+         run: aws eks update-kubeconfig --name education-eks-cKFm6ii9 --region eu-north-1
+
+       - name: Install kubectl
+         uses: azure/setup-kubectl@v3
+         with:
+           version: 'v1.24.0' # default is latest stable
+           id: install
+
        - name: "Install Helm"
          uses: azure/setup-helm@v4.2.0
-         id: "install-helm"
+         id: "install-helm" 
+         
+       - name: "Install Prometheus"
+         run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+          helm install prometheus prometheus-community/prometheus
 
        - name: Create Helm chart
          run: |
           helm create mychart
-          sed -i 's|repository: ""|repository: "epauldike/calapp":${{ env.APP_VERSION }}|' mychart/values.yaml
 
        - name: "deploy helm"
          run: |
           helm upgrade --install deployment mychart --set image.tag=${{ env.APP_VERSION }}
 
-       - name: Get Minikube IP
+       - name: "Install Grafana"
          run: |
-          minikube ip
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo update
+          helm install grafana grafana/grafana
+
 
         
