@@ -57,26 +57,26 @@ jobs:
          uses: azure/setup-helm@v4.2.0
          id: "install-helm" 
          
-       - name: "Install Prometheus"
-         run: |
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm repo update
-          helm install prometheus prometheus-community/prometheus
+      #  - name: "Install Prometheus"
+      #    run: |
+      #     helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+      #     helm repo update
+      #     helm install prometheus prometheus-community/prometheus
 
-       - name: Create Helm chart
-         run: |
-          helm create mychart
+      #  - name: Create Helm chart
+      #    run: |
+      #     helm create mychart
 
        - name: "deploy helm"
          run: |
           helm upgrade --install calculatorapp mychart --set image.tag=${{ env.APP_VERSION }}
           # helm upgrade --install calculatorapp ./helm-chart --set image.repository=$/$ECR_REPOSITORY,image.tag=$IMAGE_TAG
 
-       - name: "Install Grafana"
-         run: |
-          helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo update
-          helm install grafana grafana/grafana
+      #  - name: "Install Grafana"
+      #    run: |
+      #     helm repo add grafana https://grafana.github.io/helm-charts
+      #     helm repo update
+      #     helm install grafana grafana/grafana
 
 
         
