@@ -69,7 +69,8 @@ jobs:
 
        - name: "deploy helm"
          run: |
-          helm upgrade --install deployment mychart --set image.tag=${{ env.APP_VERSION }}
+          helm upgrade --install calculatorapp mychart --set image.tag=${{ env.APP_VERSION }}
+          # helm upgrade --install calculatorapp ./helm-chart --set image.repository=$/$ECR_REPOSITORY,image.tag=$IMAGE_TAG
 
        - name: "Install Grafana"
          run: |
