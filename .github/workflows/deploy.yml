@@ -80,7 +80,7 @@ jobs:
 
        - name: "Add to Templates"
          run: |
-          cp /home/pdyke/new/deployment.yaml mychart/templates
+          cp deployment.yaml mychart/templates
 
        - name: "deploy helm"
          run: |
